@@ -183,6 +183,8 @@ http://127.0.0.1:3000/demos/13-cdn-module-tsx.html
 | `demos/11-module-graph-tsx.html` | Multi-file TS/TSX module graph |
 | `demos/12-cdn-html-libs.html` | Bootstrap CSS CDN, Lodash script CDN, static local CSS |
 | `demos/13-cdn-module-tsx.html` | TS/TSX module graph with Lodash ES CDN module import |
+| `demos/14-multifile-jsx/` | Multi-file JSX grocery basket client and server folder |
+| `demos/15-multifile-tsx/` | Multi-file TSX service queue client and server folder |
 
 ## Commands
 
@@ -219,6 +221,8 @@ npm run serve:notes
 npm run serve:sse
 npm run serve:votes
 npm run serve:palette
+npm run serve:grocery
+npm run serve:queue
 ```
 
 `test:browser`, `test:fuzz`, and `test:bench` use Chromium through `playwright-core`. Set `CHROMIUM_PATH=/path/to/chromium` if Chromium is not on the system path.
@@ -227,9 +231,9 @@ npm run serve:palette
 
 `dumbact.test.js` checks the core with a deterministic DOM model.
 
-`tests/demo-smoke.mjs` compiles and executes the single-file HTML demos, checks module demo source files, checks static CSS requirements, verifies removed APIs are absent, verifies CDN/library examples are present, verifies the Lodash npm import in the `.mjs` server demo, and checks real Express endpoints for REST, SSE, vote, and palette search.
+`tests/demo-smoke.mjs` compiles and executes the single-file HTML demos, checks module demo source files, checks static CSS requirements, verifies removed APIs are absent, verifies CDN/library examples are present, verifies the Lodash npm import in the `.mjs` server demo, and checks real Express endpoints for REST, SSE, vote, palette, grocery, and queue data.
 
-`tests/browser-smoke.mjs` opens the minimal example, demos 01-08, demo 12, and module demos 11 and 13 in Chromium. It checks real user interactions, REST, SSE, module imports, CDN compatibility through deterministic CDN route shims, ready markers, system errors, and horizontal overflow. The heavier single-file servers 09 and 10 are covered through real Express endpoint checks in `tests/demo-smoke.mjs`.
+`tests/browser-smoke.mjs` opens the minimal example, demos 01-08, demo 12, module demos 11 and 13, and the server/client folder demos 14 and 15 in Chromium. It checks real user interactions, REST, SSE, module imports, CDN compatibility through deterministic CDN route shims, ready markers, system errors, and horizontal overflow. The heavier single-file servers 09 and 10 are covered through real Express endpoint checks in `tests/demo-smoke.mjs`.
 
 `tests/fuzz-bench.mjs` runs random keyed-list edits, event-handler replacement, mount/unmount cycles, and the benchmark in one Chromium session during `npm test`.
 

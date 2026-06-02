@@ -10,14 +10,24 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const demos = join(root, 'demos');
 const runtime = readFileSync(join(root, 'dumbact.js'), 'utf8');
 
+function browserWorks(path) {
+  if (!path || !existsSync(path)) return false;
+  const r = spawnSync(path, ['--version'], { encoding: 'utf8' });
+  return r.status === 0;
+}
 function findChromium() {
-  if (process.env.CHROMIUM_PATH) return process.env.CHROMIUM_PATH;
-  const names = ['chromium', 'chromium-browser', 'google-chrome', 'google-chrome-stable', 'chrome'];
-  for (const name of names) {
-    const r = spawnSync('which', [name], { encoding: 'utf8' });
-    if (r.status === 0 && r.stdout.trim()) return r.stdout.trim();
-  }
-  return '/usr/bin/chromium';
+  const paths = [
+    process.env.CHROMIUM_PATH,
+    ...['chromium', 'chromium-browser', 'google-chrome', 'google-chrome-stable', 'chrome'].map(name => spawnSync('which', [name], { encoding: 'utf8' }).stdout.trim()).filter(Boolean),
+    '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+    '/Applications/Chromium.app/Contents/MacOS/Chromium',
+    '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser',
+    '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
+    '/usr/bin/chromium',
+    '/usr/bin/chromium-browser'
+  ];
+  for (const path of paths) if (browserWorks(path)) return path;
+  return paths.find(Boolean) || '/usr/bin/chromium';
 }
 const chromiumPath = findChromium();
 const chromiumArgs = ['--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--disable-software-rasterizer', '--disable-crash-reporter', '--disable-breakpad'];
@@ -27,6 +37,8 @@ const htmlNames = [
   '11-module-graph-tsx.html', '12-cdn-html-libs.html', '13-cdn-module-tsx.html'
 ];
 const serverNames = ['07-api-notes-paired.server.mjs', '08-sse-metrics-paired.server.mjs', '09-vote-wall-singlefile.server.mjs', '10-command-palette-singlefile.server.mjs'];
+const folderHtmlNames = ['14-multifile-jsx/index.html', '15-multifile-tsx/index.html'];
+const folderServerNames = ['14-multifile-jsx/server.mjs', '15-multifile-tsx/server.mjs'];
 function walk(dir, out = []) { for (const name of readdirSync(dir)) { if (name === 'node_modules') continue; const full = join(dir, name); if (statSync(full).isDirectory()) walk(full, out); else out.push(full); } return out; }
 function sh(args) { const r = spawnSync(args[0], args.slice(1), { cwd: root, encoding: 'utf8' }); assert.equal(r.status, 0, `${args.join(' ')}\n${r.stderr || r.stdout}`); }
 function freePort() { return new Promise((ok, fail) => { const s = createServer(); s.on('error', fail); s.listen(0, '127.0.0.1', () => { const p = s.address().port; s.close(() => ok(p)); }); }); }
@@ -101,18 +113,21 @@ async function loadReady(p, html, id) { await p.evaluate(() => { try { window.di
 async function readiness(browser, cases, opts, media) { for (const c of cases) { console.log('ready', c.id); const p = await newPage(browser, opts, media); try { await loadReady(p, c.html, c.id); } finally { await p.close(); } } }
 async function moduleReady(browser, name, id, opts, media, click) { console.log('ready ' + id + '-module'); const p = await newPage(browser, opts, media); await routeModuleFiles(p); await loadReady(p, moduleHtml(name), id); if (click && id === '11') { await p.getByLabel('module increase').click(); await p.waitForFunction(() => document.querySelector('[data-testid="module-count"]')?.textContent === '1'); } if (click && id === '13') { await p.getByLabel('larger chunks').click(); await p.waitForFunction(() => document.querySelector('[data-testid="cdnmod-size"]')?.textContent === '4'); } p.clean(); await p.close(); }
 async function exercise(browser, c, opts, fn) { const p = await newPage(browser, opts); try { await loadReady(p, c.html, c.id); if (fn) await fn(p); p.clean(); } finally { await p.close(); } }
+async function gotoReady(p, url, id) { await p.goto(url, { waitUntil: 'domcontentloaded', timeout: 10000 }); await p.waitForFunction(x => document.documentElement.dataset.demoReady === x, id, { timeout: 8000 }); await p.waitForSelector('[data-ready]'); assert.ok((await p.locator('h1').innerText()).trim().length > 3); const overflow = await p.evaluate(() => document.scrollingElement.scrollWidth - window.innerWidth); assert.ok(overflow <= 4, `horizontal overflow ${overflow} in ${id}`); const sysErrors = await p.evaluate(() => (window.Dumbact?.peek?.('sys:errors', []) || []).map(e => String(e && e.message || e))); assert.deepEqual(sysErrors, []); p.clean(); }
+async function serverExercise(browser, server, id, opts, media, fn) { console.log('ready ' + id + '-server-module'); const p = await newPage(browser, opts, media); try { await gotoReady(p, server.url, id); if (fn) await fn(p); p.clean(); } finally { await p.close(); } }
 
 assert.deepEqual(readdirSync(demos).filter(n => n.endsWith('.html')).sort(), htmlNames);
 assert.deepEqual(readdirSync(demos).filter(n => n.endsWith('.server.mjs')).sort(), serverNames);
+for (const name of folderHtmlNames.concat(folderServerNames)) assert.ok(existsSync(join(demos, name)), name + ' exists');
 for (const lock of ['package-lock.json', 'pnpm-lock.yaml', 'yarn.lock', 'bun.lockb']) assert.ok(!walk(root).some(f => f.endsWith(lock)), lock + ' exists');
 sh([process.execPath, '--check', join(root, 'dumbact.js')]);
-for (const s of serverNames) sh([process.execPath, '--check', join(demos, s)]);
+for (const s of serverNames.concat(folderServerNames)) sh([process.execPath, '--check', join(demos, s)]);
 sh([process.execPath, join(root, 'dumbact.test.js')]);
 const D = await import(join(root, 'dumbact.js'));
 for (const [mode, source] of [['js', 'const x=1'], ['ts', 'type X = {a:string};\nconst f=(x: number)=>x+1;'], ['jsx', 'const x=<div class="a">hi {1}</div>;'], ['tsx', 'type P = {x:number};\nconst x=<span>{2}</span>;']]) new Function('Dumbact', D.default?.compile?.(source, mode) || D.compile(source, mode))(D.default || D);
 assert.ok(existsSync(chromiumPath), 'missing Chromium at ' + chromiumPath);
 
-const servers = { notes: await start(serverNames[0]), sse: await start(serverNames[1]) };
+const servers = { notes: await start(serverNames[0]), sse: await start(serverNames[1]), grocery: await start(folderServerNames[0]), queue: await start(folderServerNames[1]) };
 let browser;
 let passed = false;
 try {
@@ -139,6 +154,20 @@ try {
   };
   await moduleReady(browser, '11-module-graph-tsx.html', '11', { viewport: { width: 1200, height: 850 } }, { colorScheme: 'light' }, true);
   await moduleReady(browser, '13-cdn-module-tsx.html', '13', { viewport: { width: 1200, height: 850 } }, { colorScheme: 'light' }, true);
+  await serverExercise(browser, servers.grocery, '14', { viewport: { width: 390, height: 780 } }, { colorScheme: 'light' }, async p => {
+    await p.waitForFunction(() => document.querySelector('[data-testid="grocery-status"]')?.textContent === 'ready');
+    await p.fill('[data-testid="grocery-input"]', 'Bananas');
+    await p.click('[data-testid="grocery-add"]');
+    await p.waitForSelector('[data-testid="grocery-list"] >> text=Bananas');
+  });
+  await serverExercise(browser, servers.queue, '15', { viewport: { width: 1200, height: 850 } }, { colorScheme: 'dark' }, async p => {
+    await p.waitForFunction(() => document.querySelector('[data-testid="queue-status"]')?.textContent === 'ready');
+    await p.fill('[data-testid="queue-input"]', 'True wheel');
+    await p.click('[data-testid="queue-add"]');
+    await p.waitForSelector('[data-testid="queue-list"] >> text=True wheel');
+    await p.click('[data-testid="queue-advance-chain"]');
+    await p.waitForFunction(() => document.querySelector('[data-testid="queue-done"]')?.textContent === '2');
+  });
   for (const c of cases) {
     console.log('ready', c.id);
     await exercise(browser, c, { viewport: { width: c.id === '02' || c.id === '05' || c.id === '08' || c.id === '10' ? 390 : 1200, height: c.id === '02' || c.id === '05' || c.id === '08' || c.id === '10' ? 760 : 850 } }, actions[c.id]);

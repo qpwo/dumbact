@@ -8,13 +8,24 @@ import { chromium } from 'playwright-core';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const runtime = readFileSync(join(root, 'dumbact.js'), 'utf8').replaceAll('</script>', '<\\/script>');
 
+function browserWorks(path) {
+  if (!path || !existsSync(path)) return false;
+  const r = spawnSync(path, ['--version'], { encoding: 'utf8' });
+  return r.status === 0;
+}
 function findChromium() {
-  if (process.env.CHROMIUM_PATH) return process.env.CHROMIUM_PATH;
-  for (const name of ['chromium', 'chromium-browser', 'google-chrome', 'google-chrome-stable', 'chrome']) {
-    const r = spawnSync('which', [name], { encoding: 'utf8' });
-    if (r.status === 0 && r.stdout.trim()) return r.stdout.trim();
-  }
-  return '/usr/bin/chromium';
+  const paths = [
+    process.env.CHROMIUM_PATH,
+    ...['chromium', 'chromium-browser', 'google-chrome', 'google-chrome-stable', 'chrome'].map(name => spawnSync('which', [name], { encoding: 'utf8' }).stdout.trim()).filter(Boolean),
+    '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+    '/Applications/Chromium.app/Contents/MacOS/Chromium',
+    '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser',
+    '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
+    '/usr/bin/chromium',
+    '/usr/bin/chromium-browser'
+  ];
+  for (const path of paths) if (browserWorks(path)) return path;
+  return paths.find(Boolean) || '/usr/bin/chromium';
 }
 function row(k, v) { return `| ${k} | ${v} |`; }
 function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }

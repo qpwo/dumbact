@@ -31,9 +31,20 @@ const serverNames = [
   '09-vote-wall-singlefile.server.mjs',
   '10-command-palette-singlefile.server.mjs'
 ];
+const folderHtmlNames = [
+  '14-multifile-jsx/index.html',
+  '15-multifile-tsx/index.html'
+];
+const folderServerNames = [
+  '14-multifile-jsx/server.mjs',
+  '15-multifile-tsx/server.mjs'
+];
+const allHtmlNames = htmlNames.concat(folderHtmlNames);
 const moduleSources = {
   '11-module-graph-tsx.html': [['modules/state.ts', 'ts'], ['modules/view.tsx', 'tsx'], ['modules/main.tsx', 'tsx']],
-  '13-cdn-module-tsx.html': [['modules/cdn-data.ts', 'ts'], ['modules/cdn-view.tsx', 'tsx'], ['modules/cdn-main.tsx', 'tsx']]
+  '13-cdn-module-tsx.html': [['modules/cdn-data.ts', 'ts'], ['modules/cdn-view.tsx', 'tsx'], ['modules/cdn-main.tsx', 'tsx']],
+  '14-multifile-jsx/index.html': [['14-multifile-jsx/api.js', 'js'], ['14-multifile-jsx/state.js', 'js'], ['14-multifile-jsx/view.jsx', 'jsx'], ['14-multifile-jsx/app.jsx', 'jsx']],
+  '15-multifile-tsx/index.html': [['15-multifile-tsx/data.ts', 'ts'], ['15-multifile-tsx/api.ts', 'ts'], ['15-multifile-tsx/state.ts', 'ts'], ['15-multifile-tsx/view.tsx', 'tsx'], ['15-multifile-tsx/app.tsx', 'tsx']]
 };
 const removedRuntimeAPIs = /Dumbact\.(?:derive|ask|resource|watch|restore|cloneElement|toChildArray|isValidElement|batch|update|replaceAllState|unsafeHTML)\b/;
 
@@ -239,12 +250,13 @@ function checkHtml(name, html) {
 
 assert.deepEqual(readdirSync(demos).filter(n => n.endsWith('.html')).sort(), htmlNames);
 assert.deepEqual(readdirSync(demos).filter(n => n.endsWith('.server.mjs')).sort(), serverNames);
+for (const name of folderHtmlNames.concat(folderServerNames)) assert.ok(existsSync(join(demos, name)), name + ' exists');
 for (const lock of ['package-lock.json', 'npm-shrinkwrap.json', 'pnpm-lock.yaml', 'yarn.lock', 'bun.lockb']) assert.ok(!walk(root).some(f => f.endsWith(lock)), lock + ' exists');
 for (const api of ['derive', 'ask', 'resource', 'watch', 'restore', 'cloneElement', 'toChildArray', 'isValidElement', 'batch', 'update', 'replaceAllState', 'unsafeHTML']) assert.equal(typeof Dumbact[api], 'undefined', api + ' should not be core');
 sh([process.execPath, '--check', join(root, 'dumbact.js')]);
 sh([process.execPath, '--check', join(root, 'dumbact.test.js')]);
 sh([process.execPath, '--check', join(root, 'serve.mjs')]);
-for (const serverName of serverNames) sh([process.execPath, '--check', join(demos, serverName)]);
+for (const serverName of serverNames.concat(folderServerNames)) sh([process.execPath, '--check', join(demos, serverName)]);
 sh([process.execPath, join(root, 'dumbact.test.js')]);
 for (const [mode, source] of [
   ['js', 'const x = 1;'],
@@ -252,7 +264,7 @@ for (const [mode, source] of [
   ['jsx', 'const x = <div class="a">hi {1}</div>;'],
   ['tsx', 'type P = { x: number }; const x = <span>{2}</span>;']
 ]) new Function('Dumbact', Dumbact.compile(source, mode))(Dumbact);
-for (const htmlName of htmlNames) {
+for (const htmlName of allHtmlNames) {
   const html = readFileSync(join(demos, htmlName), 'utf8');
   checkHtml(htmlName, html);
   if (htmlName === '12-cdn-html-libs.html') {
@@ -301,6 +313,24 @@ await withServer(serverNames[3], async server => {
   assert.match(readFileSync(join(demos, serverNames[3]), 'utf8'), /import _ from 'lodash';/, 'lodash npm import in .mjs demo');
   const found = await (await fetch(server.url + 'api/actions?q=goblin')).json();
   assert.ok(found.some(a => /goblin/i.test(a.title + a.hint)));
+});
+await withServer(folderServerNames[0], async server => {
+  const home = await (await fetch(server.url)).text();
+  checkHtml(folderServerNames[0], home);
+  const created = await fetch(server.url + 'api/items', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ name: 'server bananas' }) });
+  assert.equal(created.status, 201);
+  const item = await created.json();
+  const toggled = await (await fetch(server.url + 'api/items/' + encodeURIComponent(item.id) + '/toggle', { method: 'POST' })).json();
+  assert.equal(toggled.done, true);
+});
+await withServer(folderServerNames[1], async server => {
+  const home = await (await fetch(server.url)).text();
+  checkHtml(folderServerNames[1], home);
+  const created = await fetch(server.url + 'api/jobs', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ title: 'server true wheel' }) });
+  assert.equal(created.status, 201);
+  const job = await created.json();
+  const advanced = await (await fetch(server.url + 'api/jobs/' + encodeURIComponent(job.id) + '/advance', { method: 'POST' })).json();
+  assert.equal(advanced.status, 'doing');
 });
 assert.ok(existsSync(join(root, '.npmrc')));
 console.log('demo smoke tests passed');

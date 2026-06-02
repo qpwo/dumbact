@@ -16,6 +16,8 @@
     "serve:sse": "node demos/08-sse-metrics-paired.server.mjs",
     "serve:votes": "node demos/09-vote-wall-singlefile.server.mjs",
     "serve:palette": "node demos/10-command-palette-singlefile.server.mjs",
+    "serve:grocery": "node demos/14-multifile-jsx/server.mjs",
+    "serve:queue": "node demos/15-multifile-tsx/server.mjs",
     "serve": "node serve.mjs",
     "test:fuzzbench": "node tests/fuzz-bench.mjs"
   },
