@@ -1,26 +1,178 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="color-scheme" content="light dark">
-  <title>Multi-file JSX grocery basket</title>
-  <style>
-    :root{color-scheme:light dark;--bg:Canvas;--fg:CanvasText;--mut:GrayText;--pn:Canvas;--ln:color-mix(in srgb,CanvasText 24%,transparent);--ac:CanvasText;--ok:CanvasText;--bad:CanvasText}
-    @media (prefers-color-scheme:dark){:root{--bg:Canvas;--fg:CanvasText;--mut:GrayText;--pn:Canvas;--ln:color-mix(in srgb,CanvasText 24%,transparent);--ac:CanvasText;--ok:CanvasText;--bad:CanvasText}}
-    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%}button,input{font:inherit;border:1px solid var(--ln);border-radius:0;background:ButtonFace;color:ButtonText;padding:.65rem .8rem}button{cursor:pointer}input{width:100%;background:Field;color:FieldText}.pg{width:min(980px,100%);margin:auto;padding:clamp(16px,4vw,40px)}.hd{display:grid;gap:.35rem;margin-bottom:1rem}.bd{border:1px solid var(--ln);padding:.18rem .45rem;width:max-content;color:var(--mut);font-size:.82rem}.gd{display:grid;grid-template-columns:repeat(12,1fr);gap:1rem}.c{grid-column:span 6;border:1px solid var(--ln);background:var(--pn);padding:1rem}.wide{grid-column:span 12}.stk{display:grid;gap:.85rem}.rw{display:flex;flex-wrap:wrap;gap:.55rem;align-items:center}.sp{display:flex;justify-content:space-between;gap:1rem;align-items:start}.big{font-size:clamp(2rem,9vw,4rem);font-weight:800;line-height:1}.ls{list-style:none;margin:0;padding:0;display:grid;gap:.55rem}.it{border:1px solid var(--ln);padding:.75rem;display:flex;justify-content:space-between;gap:1rem}.mut{color:var(--mut)}.on{outline:2px solid var(--ac);outline-offset:2px}.done{text-decoration:line-through;color:var(--mut)}@media (max-width:760px){.gd{grid-template-columns:1fr}.c,.wide{grid-column:auto}.it,.sp{display:grid}.rw{display:grid}}@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto;transition:none;animation:none}}
-  </style>
-</head>
-<body>
-  <main class="pg">
-    <header class="hd">
-      <span class="bd">text/dumbact-jsx-module in a folder</span>
-      <h1>Weekend grocery basket</h1>
-      <p class="mut">A tiny multi-file JSX app with local state, derived totals, filters, and real form input.</p>
-    </header>
-    <div id="app"></div>
-  </main>
-  <script src="/dumbact.js"></script>
-  <script type="text/dumbact-jsx-module" src="./app.jsx"></script>
-</body>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <title>Multi-file JSX grocery basket</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: Canvas;
+        --fg: CanvasText;
+        --mut: GrayText;
+        --pn: Canvas;
+        --ln: color-mix(in srgb, CanvasText 24%, transparent);
+        --ac: CanvasText;
+        --ok: CanvasText;
+        --bad: CanvasText;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: Canvas;
+          --fg: CanvasText;
+          --mut: GrayText;
+          --pn: Canvas;
+          --ln: color-mix(in srgb, CanvasText 24%, transparent);
+          --ac: CanvasText;
+          --ok: CanvasText;
+          --bad: CanvasText;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font:
+          16px/1.5 system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          sans-serif;
+        -webkit-text-size-adjust: 100%;
+      }
+      button,
+      input {
+        font: inherit;
+        border: 1px solid var(--ln);
+        border-radius: 0;
+        background: ButtonFace;
+        color: ButtonText;
+        padding: 0.65rem 0.8rem;
+      }
+      button {
+        cursor: pointer;
+      }
+      input {
+        width: 100%;
+        background: Field;
+        color: FieldText;
+      }
+      .pg {
+        width: min(980px, 100%);
+        margin: auto;
+        padding: clamp(16px, 4vw, 40px);
+      }
+      .hd {
+        display: grid;
+        gap: 0.35rem;
+        margin-bottom: 1rem;
+      }
+      .bd {
+        border: 1px solid var(--ln);
+        padding: 0.18rem 0.45rem;
+        width: max-content;
+        color: var(--mut);
+        font-size: 0.82rem;
+      }
+      .gd {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 1rem;
+      }
+      .c {
+        grid-column: span 6;
+        border: 1px solid var(--ln);
+        background: var(--pn);
+        padding: 1rem;
+      }
+      .wide {
+        grid-column: span 12;
+      }
+      .stk {
+        display: grid;
+        gap: 0.85rem;
+      }
+      .rw {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.55rem;
+        align-items: center;
+      }
+      .sp {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        align-items: start;
+      }
+      .big {
+        font-size: clamp(2rem, 9vw, 4rem);
+        font-weight: 800;
+        line-height: 1;
+      }
+      .ls {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: 0.55rem;
+      }
+      .it {
+        border: 1px solid var(--ln);
+        padding: 0.75rem;
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+      .mut {
+        color: var(--mut);
+      }
+      .on {
+        outline: 2px solid var(--ac);
+        outline-offset: 2px;
+      }
+      .done {
+        text-decoration: line-through;
+        color: var(--mut);
+      }
+      @media (max-width: 760px) {
+        .gd {
+          grid-template-columns: 1fr;
+        }
+        .c,
+        .wide {
+          grid-column: auto;
+        }
+        .it,
+        .sp {
+          display: grid;
+        }
+        .rw {
+          display: grid;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          scroll-behavior: auto;
+          transition: none;
+          animation: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="pg">
+      <header class="hd">
+        <span class="bd">text/dumbact-jsx-module in a folder</span>
+        <h1>Weekend grocery basket</h1>
+        <p class="mut">A tiny multi-file JSX app with local state, derived totals, filters, and real form input.</p>
+      </header>
+      <div id="app"></div>
+    </main>
+    <script src="/dumbact.js"></script>
+    <script type="text/dumbact-jsx-module" src="./app.jsx"></script>
+  </body>
 </html>

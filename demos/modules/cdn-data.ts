@@ -6,4 +6,4 @@ export const rows = [
   { id: 'd', name: 'Dumbact built-in module', kind: 'runtime' },
   { id: 'i', name: 'Inspectable DOM', kind: 'surface' },
   { id: 'b', name: 'No bundler', kind: 'runtime' }
-];
+]

@@ -27,5 +27,16 @@
   },
   "devDependencies": {
     "playwright-core": "1.56.1"
+  },
+  "prettier": {
+    "printWidth": 120,
+    "semi": false,
+    "singleQuote": true,
+    "jsxSingleQuote": true,
+    "arrowParens": "avoid",
+    "trailingComma": "none",
+    "bracketSameLine": true,
+    "singleAttributePerLine": false,
+    "proseWrap": "never"
   }
 }

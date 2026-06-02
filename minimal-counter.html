@@ -1,28 +1,88 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="color-scheme" content="light dark">
-  <title>Dumbact minimal counter</title>
-  <style>
-    :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
-    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: Canvas; color: CanvasText; }
-    button { font: inherit; padding: 0.75rem 1rem; border-radius:0; border: 1px solid color-mix(in srgb, CanvasText 30%, transparent); background: ButtonFace; color: ButtonText; }
-  </style>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <title>Dumbact minimal counter</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font:
+          16px system-ui,
+          sans-serif;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: Canvas;
+        color: CanvasText;
+      }
+      button {
+        font: inherit;
+        padding: 0.75rem 1rem;
+        border-radius: 0;
+        border: 1px solid color-mix(in srgb, CanvasText 30%, transparent);
+        background: ButtonFace;
+        color: ButtonText;
+      }
+    </style>
 
-<style data-flat-css>:root{--r:0;--shadow:none;--sd:none;--bg:Canvas;--panel:Canvas;--panel2:Canvas;--pn:Canvas;--pn2:Canvas;--text:CanvasText;--fg:CanvasText;--muted:GrayText;--mut:GrayText;--line:color-mix(in srgb,CanvasText 20%,transparent);--ln:color-mix(in srgb,CanvasText 20%,transparent);--accent:CanvasText;--ac:CanvasText;--ink:Canvas;--good:CanvasText;--danger:CanvasText;--ok:CanvasText}*{border-radius:0;box-shadow:none}body:before{background:none;content:none}svg rect{rx:0;ry:0}</style></head>
-<body>
-  <main><h1>Dumbact minimal counter</h1><div id="app"></div></main>
-  <script src="./dumbact.js"></script>
-  <script type="text/dumbact-tsx">
-    const App = () => (
-      <button data-ready data-testid="minimal-count" aria-label="increase" onClick={() => Dumbact.set('example:count', n => (n || 0) + 1)}>
+    <style data-flat-css>
+      :root {
+        --r: 0;
+        --shadow: none;
+        --sd: none;
+        --bg: Canvas;
+        --panel: Canvas;
+        --panel2: Canvas;
+        --pn: Canvas;
+        --pn2: Canvas;
+        --text: CanvasText;
+        --fg: CanvasText;
+        --muted: GrayText;
+        --mut: GrayText;
+        --line: color-mix(in srgb, CanvasText 20%, transparent);
+        --ln: color-mix(in srgb, CanvasText 20%, transparent);
+        --accent: CanvasText;
+        --ac: CanvasText;
+        --ink: Canvas;
+        --good: CanvasText;
+        --danger: CanvasText;
+        --ok: CanvasText;
+      }
+      * {
+        border-radius: 0;
+        box-shadow: none;
+      }
+      body:before {
+        background: none;
+        content: none;
+      }
+      svg rect {
+        rx: 0;
+        ry: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Dumbact minimal counter</h1>
+      <div id="app"></div>
+    </main>
+    <script src="./dumbact.js"></script>
+    <script type="text/dumbact-tsx">
+      const App = () => <button
+        data-ready
+        data-testid='minimal-count'
+        aria-label='increase'
+        onClick={() => Dumbact.set('example:count', n => (n || 0) + 1)}>
         Count: {Dumbact.get('example:count', 0)}
       </button>
-    );
-    Dumbact.render(App, '#app');
-    document.documentElement.dataset.demoReady = 'minimal';
-  </script>
-</body>
+      Dumbact.render(App, '#app')
+      document.documentElement.dataset.demoReady = 'minimal'
+    </script>
+  </body>
 </html>

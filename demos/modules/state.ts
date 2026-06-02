@@ -1,20 +1,20 @@
-import { scope } from "dumbact";
+import { scope } from 'dumbact'
 
-type ModuleState = { label: string };
+type ModuleState = { label: string }
 
-export const S = scope("module-demo");
+export const S = scope('module-demo')
 
-if (!S.peek("count")) S.set("count", 0);
-S.set("info", { label: "native import/export" } as ModuleState);
+if (!S.peek('count')) S.set('count', 0)
+S.set('info', { label: 'native import/export' } as ModuleState)
 
 export function count(): number {
-  return S.get("count", 0);
+  return S.get('count', 0)
 }
 
 export function info(): ModuleState {
-  return S.get("info", { label: "module" });
+  return S.get('info', { label: 'module' })
 }
 
 export function inc(): void {
-  S.set("count", (n: number) => (n || 0) + 1);
+  S.set('count', (n: number) => (n || 0) + 1)
 }
