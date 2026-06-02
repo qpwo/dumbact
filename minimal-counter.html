@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Dumbact minimal counter</title>
+  <style>
+    :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: Canvas; color: CanvasText; }
+    button { font: inherit; padding: 0.75rem 1rem; border-radius: 0.5rem; border: 1px solid color-mix(in srgb, CanvasText 30%, transparent); background: ButtonFace; color: ButtonText; }
+  </style>
+</head>
+<body>
+  <main><h1>Dumbact minimal counter</h1><div id="app"></div></main>
+  <script src="./dumbact.js"></script>
+  <script type="text/dumbact-tsx">
+    const App = () => (
+      <button data-ready data-testid="minimal-count" aria-label="increase" onClick={() => Dumbact.set('example:count', n => (n || 0) + 1)}>
+        Count: {Dumbact.get('example:count', 0)}
+      </button>
+    );
+    Dumbact.render(App, '#app');
+    document.documentElement.dataset.demoReady = 'minimal';
+  </script>
+</body>
+</html>
