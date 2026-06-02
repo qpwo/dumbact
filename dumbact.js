@@ -992,8 +992,8 @@
 
   function stripTypes(source) {
     var src = String(source == null ? '' : source)
-    src = src.replace(/^\s*import\s+type\s+[^;]+;?\s*$/gm, '')
-    src = src.replace(/^\s*export\s+type\s+[^;]+;?\s*$/gm, '')
+    src = src.replace(/^\s*import\s+type\s+[^\n;]+;?\s*$/gm, '')
+    src = src.replace(/^\s*export\s+type\s+(?![^\n;]*=)[^\n;]+;?\s*$/gm, '')
     src = removeTypeAliases(src)
     src = removeInterfaceBlocks(src)
     src = src.replace(/\s+as\s+[A-Za-z_$][\w$]*(?:\s*\[\])?(?:\s*\|\s*[A-Za-z_$][\w$]*)*/g, '')

@@ -632,6 +632,8 @@ async function test(name, fn) {
   await test('compiler APIs are attached in the same file', () => {
     assert.equal(typeof Dumbact.compile, 'function')
     assert.match(Dumbact.compile('type X = {a:string};\nconst x: number = 1;', 'ts'), /const x\s*= 1/)
+    assert.match(Dumbact.compile('export type X = {\n  a: string\n}\nexport const x: number = 1;', 'ts'), /export const x\s*= 1/)
+    assert.doesNotMatch(Dumbact.compile('export type X = {\n  a: string\n}\nexport const x: number = 1;', 'ts'), /\ba:\s*string\b/)
     assert.match(Dumbact.compile('const x=<b>goblin</b>;', 'jsx'), /Dumbact\.h/)
   })
 

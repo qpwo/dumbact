@@ -1,6 +1,19 @@
 import { get, set } from 'dumbact'
 
-export function CdnApp(props) {
+type CdnRow = {
+  id: string
+  name: string
+  kind: string
+}
+
+type Chunker = (rows: CdnRow[], size: number) => CdnRow[][]
+
+type CdnAppProps = {
+  chunk: Chunker
+  rows: CdnRow[]
+}
+
+export function CdnApp(props: CdnAppProps) {
   const chunk = props.chunk
   const rows = props.rows
   const size = get('cdnmod:size', 3)
@@ -13,10 +26,10 @@ export function CdnApp(props) {
       </div>
       <p>The external helper only chunks arrays. The app data remains plain objects.</p>
       <div class='rw'>
-        <button aria-label='smaller chunks' onClick={() => set('cdnmod:size', n => Math.max(1, (n || 3) - 1))}>
+        <button aria-label='smaller chunks' onClick={() => set('cdnmod:size', (n: number) => Math.max(1, (n || 3) - 1))}>
           Smaller
         </button>
-        <button aria-label='larger chunks' onClick={() => set('cdnmod:size', n => Math.min(5, (n || 3) + 1))}>
+        <button aria-label='larger chunks' onClick={() => set('cdnmod:size', (n: number) => Math.min(5, (n || 3) + 1))}>
           Larger
         </button>
       </div>

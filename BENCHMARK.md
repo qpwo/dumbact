@@ -6,10 +6,10 @@ These numbers are produced by `npm run test:bench` or `npm test` in Chromium on 
 |---|---|
 | rows | 1200 |
 | direct DOM initial render | 0.4 / 0.3 / 0.6 ms |
-| Dumbact initial render | 1 / 0.6 / 3.5 ms |
-| Dumbact single text update | 1 / 0.8 / 1.6 ms |
-| Dumbact keyed reverse | 1 / 0.9 / 1.5 ms |
-| Dumbact append 100 | 2.1 / 1.7 / 2.3 ms |
+| Dumbact initial render | 0.9 / 0.7 / 3.8 ms |
+| Dumbact single text update | 0.7 / 0.5 / 1.3 ms |
+| Dumbact keyed reverse | 0.8 / 0.6 / 1 ms |
+| Dumbact append 100 | 1.7 / 1.4 / 1.9 ms |
 
 Browser:
 

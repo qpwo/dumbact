@@ -1,17 +1,14 @@
 /** TSX views for the multi-file bike shop service queue server/client demo. */
 import { statusText } from './data.ts'
 import { addJob, advance, draft, jobs, setDraft, status, summary } from './state.ts'
+import type { Job } from './api.ts'
 
-type Job = {
-  id: string
-  title: string
-  owner: string
-  status: string
-  minutes: number
+type JobRowProps = {
+  job: Job
 }
 
-function JobRow(props) {
-  const job: Job = props.job
+function JobRow(props: JobRowProps) {
+  const job = props.job
   return <li class={'it ' + (job.status === 'done' ? 'done' : '')} key={job.id} data-job-id={job.id}>
     <span>
       <strong>{job.title}</strong>
@@ -32,7 +29,7 @@ function QueueForm() {
     <input
       data-testid='queue-input'
       value={draft()}
-      onInput={event => setDraft(event.target.value)}
+      onInput={onDraftInput}
       placeholder='New service job'
       aria-label='new service job'
     />
@@ -72,4 +69,12 @@ export function QueueApp() {
       </ul>
     </article>
   </section>
+}
+
+function onDraftInput(event: Event): void {
+  setDraft(inputValue(event))
+}
+
+function inputValue(event: Event): string {
+  return (event.target as HTMLInputElement).value
 }

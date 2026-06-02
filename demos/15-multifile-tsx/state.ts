@@ -1,12 +1,11 @@
 /** Typed state and server synchronization for the multi-file TSX service queue demo. */
 import { scope } from 'dumbact'
 import { advanceRemoteJob, createJob, listJobs } from './api.ts'
+import type { Job } from './api.ts'
 
-type Job = {
-  id: string
-  title: string
-  owner: string
-  status: string
+type Summary = {
+  open: number
+  done: number
   minutes: number
 }
 
@@ -25,7 +24,7 @@ export function loadJobs(): Promise<void> {
 }
 
 export function jobs(): Job[] {
-  return S.get('jobs', [])
+  return S.get('jobs', [] as Job[])
 }
 
 export function draft(): string {
@@ -46,7 +45,7 @@ export function addJob(event: Event): void {
   if (!title) return
   S.set('status', 'saving')
   createJob(title).then(job => {
-    S.set('jobs', rows => [job].concat(rows || []))
+    S.set('jobs', (rows: Job[]) => [job].concat(rows || []))
     S.set('draft', '')
     S.set('status', 'ready')
   }, fail)
@@ -55,12 +54,12 @@ export function addJob(event: Event): void {
 export function advance(id: string): void {
   S.set('status', 'saving')
   advanceRemoteJob(id).then(updated => {
-    S.set('jobs', rows => (rows || []).map(job => (job.id === updated.id ? updated : job)))
+    S.set('jobs', (rows: Job[]) => (rows || []).map(job => (job.id === updated.id ? updated : job)))
     S.set('status', 'ready')
   }, fail)
 }
 
-export function summary() {
+export function summary(): Summary {
   const rows = jobs()
   return {
     open: rows.filter(job => job.status !== 'done').length,
@@ -69,7 +68,7 @@ export function summary() {
   }
 }
 
-function fail(error): void {
+function fail(error: unknown): void {
   console.error(error)
   S.set('status', 'error')
 }

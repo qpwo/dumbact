@@ -1,5 +1,7 @@
 /** Shared display data for the multi-file TSX service queue demo. */
-export const statusText = {
+type StatusText = { [key: string]: string }
+
+export const statusText: StatusText = {
   todo: 'todo',
   doing: 'doing',
   done: 'done'
