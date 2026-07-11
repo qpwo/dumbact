@@ -1,5 +1,7 @@
 eg
 
+the 'react without a build step' things were many many megabytes so i made thess
+
 <!doctype html>
 <html>
 <body>
