@@ -1,7 +1,8 @@
 # Dumbact
 
-![Minimal Demo](demo-minimal/shot.png)
+![Minimal Demo](demo-minimal.jpg)
 
+```html
 <!doctype html>
 <html lang="en">
   <head>
@@ -90,3 +91,4 @@
     </script>
   </body>
 </html>
+```

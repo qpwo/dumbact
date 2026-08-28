@@ -13,25 +13,26 @@ const demos = root
 const Dumbact = require(join(root, 'dumbact.js'))
 
 const htmlNames = [
-  'demo-counter/index.html',
-  'demo-todo/index.html',
-  'demo-drilling/index.html',
-  'demo-list/index.html',
-  'demo-form/index.html',
-  'demo-svg/index.html',
-  'demo-notes/index.html',
-  'demo-sse/index.html',
-  'demo-module/index.html',
-  'demo-cdn/index.html',
-  'demo-cdn-module/index.html'
+  'demo-counter.html',
+  'demo-todo.html',
+  'demo-drilling.html',
+  'demo-list.html',
+  'demo-form.html',
+  'demo-svg.html',
+  'demo-cdn.html'
 ]
 const serverNames = [
-  'demo-notes/server.mjs',
-  'demo-sse/server.mjs',
-  'demo-vote/server.mjs',
-  'demo-palette/server.mjs'
+  'demo-notes.mjs',
+  'demo-sse.mjs',
+  'demo-vote.mjs',
+  'demo-palette.mjs'
 ]
-const folderHtmlNames = ['demo-grocery/index.html', 'demo-queue/index.html']
+const folderHtmlNames = [
+  'demo-module/index.html',
+  'demo-cdn-module/index.html',
+  'demo-grocery/index.html',
+  'demo-queue/index.html'
+]
 const folderServerNames = ['demo-grocery/server.mjs', 'demo-queue/server.mjs']
 const allHtmlNames = htmlNames.concat(folderHtmlNames)
 const moduleSources = {
@@ -497,7 +498,7 @@ for (const [mode, source] of [
 for (const htmlName of allHtmlNames) {
   const html = readFileSync(join(demos, htmlName), 'utf8')
   checkHtml(htmlName, html)
-  if (htmlName === 'demo-cdn/index.html') {
+  if (htmlName === 'demo-cdn.html') {
     assert.match(html, /bootstrap@5\.3\.3\/dist\/css\/bootstrap\.min\.css/, 'Bootstrap CSS CDN link')
     assert.match(html, /lodash@4\.17\.21\/lodash\.min\.js/, 'Lodash script CDN link')
     assert.match(html, /class="pg"/, 'short mnemonic CSS class')

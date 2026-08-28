@@ -41,25 +41,26 @@ const chromiumArgs = [
   '--disable-breakpad'
 ]
 const htmlNames = [
-  'demo-counter/index.html',
-  'demo-todo/index.html',
-  'demo-drilling/index.html',
-  'demo-list/index.html',
-  'demo-form/index.html',
-  'demo-svg/index.html',
-  'demo-notes/index.html',
-  'demo-sse/index.html',
-  'demo-module/index.html',
-  'demo-cdn/index.html',
-  'demo-cdn-module/index.html'
+  'demo-counter.html',
+  'demo-todo.html',
+  'demo-drilling.html',
+  'demo-list.html',
+  'demo-form.html',
+  'demo-svg.html',
+  'demo-cdn.html'
 ]
 const serverNames = [
-  'demo-notes/server.mjs',
-  'demo-sse/server.mjs',
-  'demo-vote/server.mjs',
-  'demo-palette/server.mjs'
+  'demo-notes.mjs',
+  'demo-sse.mjs',
+  'demo-vote.mjs',
+  'demo-palette.mjs'
 ]
-const folderHtmlNames = ['demo-grocery/index.html', 'demo-queue/index.html']
+const folderHtmlNames = [
+  'demo-module/index.html',
+  'demo-cdn-module/index.html',
+  'demo-grocery/index.html',
+  'demo-queue/index.html'
+]
 const folderServerNames = ['demo-grocery/server.mjs', 'demo-queue/server.mjs']
 const viewports = [
   { suffix: 'desktop', opts: { viewport: { width: 1200, height: 850 } } },
@@ -440,16 +441,14 @@ try {
     args: chromiumArgs
   })
   const cases = [
-    { id: 'demo-minimal', html: rootHtml('demo-minimal/index.html') },
+    { id: 'demo-minimal', html: rootHtml('demo-minimal.html') },
     { id: 'demo-counter', html: diskHtml(htmlNames[0]) },
     { id: 'demo-todo', html: diskHtml(htmlNames[1]) },
     { id: 'demo-drilling', html: diskHtml(htmlNames[2]) },
     { id: 'demo-list', html: diskHtml(htmlNames[3]) },
     { id: 'demo-form', html: diskHtml(htmlNames[4]) },
     { id: 'demo-svg', html: diskHtml(htmlNames[5]) },
-    { id: 'demo-notes', html: diskHtml(htmlNames[6], servers.notes.url) },
-    { id: 'demo-sse', html: diskHtml(htmlNames[7], servers.sse.url) },
-    { id: 'demo-cdn', html: diskHtml(htmlNames[9]) }
+    { id: 'demo-cdn', html: diskHtml(htmlNames[6]) }
   ]
   const actions = {
     'demo-minimal': async p => {
@@ -554,6 +553,26 @@ try {
       v.opts,
       { colorScheme: 'light' },
       true
+    )
+  }
+  for (const v of viewports) {
+    await serverExercise(
+      browser,
+      servers.notes,
+      'demo-notes',
+      v.opts,
+      { colorScheme: 'light' },
+      actions['demo-notes']
+    )
+  }
+  for (const v of viewports) {
+    await serverExercise(
+      browser,
+      servers.sse,
+      'demo-sse',
+      v.opts,
+      { colorScheme: 'dark' },
+      actions['demo-sse']
     )
   }
   for (const v of viewports) {

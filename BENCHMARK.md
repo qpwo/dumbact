@@ -5,11 +5,11 @@ These numbers are produced by `npm run test:bench` or `npm test` in Chromium on 
 | case | median / min / max |
 |---|---|
 | rows | 1200 |
-| direct DOM initial render | 0.8 / 0.6 / 1.2 ms |
-| Dumbact initial render | 1.3 / 1 / 5.2 ms |
-| Dumbact single text update | 0.8 / 0.7 / 1.8 ms |
-| Dumbact keyed reverse | 0.9 / 0.8 / 1.5 ms |
-| Dumbact append 100 | 2.3 / 1.8 / 2.4 ms |
+| direct DOM initial render | 0.5 / 0.4 / 0.9 ms |
+| Dumbact initial render | 1.1 / 0.8 / 3.6 ms |
+| Dumbact single text update | 0.9 / 0.7 / 1.5 ms |
+| Dumbact keyed reverse | 1 / 0.8 / 1.2 ms |
+| Dumbact append 100 | 1.8 / 1.7 / 2.4 ms |
 
 Browser:
 
