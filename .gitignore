@@ -5,3 +5,4 @@ yarn.lock
 bun.lockb
 *.log
 halp-*.txt
+.vscode
