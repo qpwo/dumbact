@@ -914,14 +914,18 @@
     return fallback || 'tsx-module'
   }
 
+  function preserveNewlinesReplacer(match) {
+    return extractNewlines(match)
+  }
+
   function stripTypes(source) {
     var src = String(source == null ? '' : source)
-    src = src.replace(/^\s*import\s+type\s+[^\n;]+;?\s*$/gm, '')
-    src = src.replace(/^\s*export\s+type\s+(?![^\n;]*=)[^\n;]+;?\s*$/gm, '')
+    src = src.replace(/^[ \t]*import\s+type\s+[^\n;]+;?[ \t]*$/gm, preserveNewlinesReplacer)
+    src = src.replace(/^[ \t]*export\s+type\s+(?![^\n;]*=)[^\n;]+;?[ \t]*$/gm, preserveNewlinesReplacer)
     src = removeTypeAliases(src)
     src = removeInterfaceBlocks(src)
-    src = src.replace(/\s+as\s+[A-Za-z_$][\w$]*(?:\s*\[\])?(?:\s*\|\s*[A-Za-z_$][\w$]*)*/g, '')
-    src = src.replace(/\s+satisfies\s+[^,;)\n]+/g, '')
+    src = src.replace(/\s+as\s+[A-Za-z_$][\w$]*(?:\s*\[\])?(?:\s*\|\s*[A-Za-z_$][\w$]*)*/g, preserveNewlinesReplacer)
+    src = src.replace(/\s+satisfies\s+[^,;)\n]+/g, preserveNewlinesReplacer)
     src = stripColonTypes(src)
     return src
   }
@@ -941,6 +945,7 @@
         chunk += '\n' + lines[i]
         depth += typeAliasDepth(lines[i])
       }
+      out += extractNewlines(chunk) + (i + 1 < lines.length ? '\n' : '')
     }
     return out
   }
@@ -989,7 +994,7 @@
   }
 
   function removeInterfaceBlocks(src) {
-    return src.replace(/^\s*interface\s+[A-Za-z_$][\w$]*(?:\s+extends\s+[^{]+)?\s*\{[\s\S]*?^\s*\}\s*$/gm, '')
+    return src.replace(/^[ \t]*interface\s+[A-Za-z_$][\w$]*(?:\s+extends\s+[^{]+)?\s*\{[\s\S]*?^[ \t]*\}[ \t]*$/gm, preserveNewlinesReplacer)
   }
 
   function stripColonTypes(src) {
@@ -1017,7 +1022,9 @@
         continue
       }
       if (ch === ':' && shouldStripType(src, i)) {
+        var s = i
         i = skipType(src, i + 1) - 1
+        out += extractNewlines(src.slice(s, i + 1))
         continue
       }
       out += ch
@@ -1154,6 +1161,11 @@
     return !p || /[=(:,[!&|?{};>]/.test(p)
   }
 
+  function extractNewlines(str) {
+    var m = String(str).match(/\n/g)
+    return m ? m.join('') : ''
+  }
+
   function parseJSX(src, i) {
     if (src.slice(i, i + 2) === '<>') return parseFragment(src, i)
     return parseElement(src, i)
@@ -1162,7 +1174,7 @@
   function parseFragment(src, i) {
     var children = parseChildren(src, i + 2, null, true)
     return {
-      code: 'Dumbact.h(Dumbact.Fragment,null' + (children.codes.length ? ',' + children.codes.join(',') : '') + ')',
+      code: 'Dumbact.h(Dumbact.Fragment,null' + (children.codes.length ? ',' + children.codes.join(',') : '') + ')' + children.pendingNls,
       end: children.end
     }
   }
@@ -1172,75 +1184,89 @@
     var start = i
     while (i < src.length && /[A-Za-z0-9_$.:\-]/.test(src[i])) i++
     var name = src.slice(start, i)
-    var props = [],
-      spreads = [],
-      selfClosing = false
+    var props = [], spreads = [], selfClosing = false
+
     while (i < src.length) {
+      var s0 = i
       i = skipSpace(src, i)
+      var pre = extractNewlines(src.slice(s0, i))
+
       if (src.slice(i, i + 2) === '/>') {
         selfClosing = true
         i += 2
+        props.push(['__dumbact_pre_close__', pre])
         break
       }
       if (src[i] === '>') {
         i++
+        props.push(['__dumbact_pre_close__', pre])
         break
       }
       if (src[i] === '{' && src.slice(i + 1, i + 4) === '...') {
         var sp = readJSXExpr(src, i)
-        spreads.push(sp.code.replace(/^\.\.\./, ''))
+        spreads.push(pre + sp.code.replace(/^\.\.\./, ''))
         i = sp.end
         continue
       }
       var a0 = i
       while (i < src.length && /[^\s=/>]/.test(src[i])) i++
       var attr = src.slice(a0, i)
+
+      var s1 = i
       i = skipSpace(src, i)
+      var postAttr = extractNewlines(src.slice(s1, i))
+
       var value = 'true'
       if (src[i] === '=') {
         i++
+        var s2 = i
         i = skipSpace(src, i)
+        var postEq = extractNewlines(src.slice(s2, i))
+
         if (src[i] === '"' || src[i] === "'") {
           var q = readQuoted(src, i)
-          value = JSON.stringify(decodeEntities(q.text.slice(1, -1)))
+          var nl = extractNewlines(q.text)
+          value = postAttr + postEq + JSON.stringify(decodeEntities(q.text.slice(1, -1))) + nl
           i = q.end + 1
         } else if (src[i] === '{') {
           var ex = readJSXExpr(src, i)
-          value = ex.code || 'undefined'
+          value = postAttr + postEq + (ex.code || 'undefined')
           i = ex.end
         } else {
           var v0 = i
           while (i < src.length && /[^\s/>]/.test(src[i])) i++
-          value = JSON.stringify(src.slice(v0, i))
+          value = postAttr + postEq + JSON.stringify(src.slice(v0, i))
         }
+      } else {
+        value = postAttr + 'true'
       }
-      if (attr) props.push([attr, value])
+      if (attr) props.push([pre + attr, value])
     }
-    var children = selfClosing ? { codes: [], end: i } : parseChildren(src, i, name, false)
+
+    var children = selfClosing ? { codes: [], end: i, pendingNls: '' } : parseChildren(src, i, name, false)
     return {
-      code:
-        'Dumbact.h(' +
-        tagCode(name) +
-        ',' +
-        propsCode(props, spreads) +
-        (children.codes.length ? ',' + children.codes.join(',') : '') +
-        ')',
+      code: 'Dumbact.h(' + tagCode(name) + ',' + propsCode(props, spreads) + (children.codes.length ? ',' + children.codes.join(',') : '') + ')' + children.pendingNls,
       end: children.end
     }
   }
 
   function parseChildren(src, i, name, frag) {
-    var codes = [],
-      text = ''
+    var codes = [], text = '', pendingNls = ''
     function pushText() {
+      var nls = extractNewlines(text)
       var t = normalizeText(text)
-      if (t) codes.push(JSON.stringify(decodeEntities(t)))
+      if (t) {
+        codes.push(pendingNls + JSON.stringify(decodeEntities(t)))
+        pendingNls = nls
+      } else {
+        pendingNls += nls
+      }
       text = ''
     }
     while (i < src.length) {
       if (frag && src.slice(i, i + 3) === '</>') {
         pushText()
-        return { codes: codes, end: i + 3 }
+        return { codes: codes, end: i + 3, pendingNls: pendingNls }
       }
       if (!frag && src.slice(i, i + 2) === '</') {
         pushText()
@@ -1251,49 +1277,68 @@
         if (close !== name) throw new Error('JSX close tag mismatch: ' + name + ' / ' + close)
         i = skipSpace(src, i)
         if (src[i] !== '>') throw new Error('JSX close tag missing > for ' + name)
-        return { codes: codes, end: i + 1 }
+        return { codes: codes, end: i + 1, pendingNls: pendingNls }
       }
       if (src[i] === '<') {
         pushText()
         var child = parseJSX(src, i)
-        codes.push(child.code)
+        codes.push(pendingNls + child.code)
+        pendingNls = ''
         i = child.end
         continue
       }
       if (src[i] === '{') {
         pushText()
         var ex = readJSXExpr(src, i)
-        if (ex.code && ex.code[0] !== '/') codes.push(ex.code)
+        if (ex.code && ex.code[0] !== '/') {
+          codes.push(pendingNls + ex.code)
+          pendingNls = ''
+        } else {
+          pendingNls += extractNewlines(ex.code)
+        }
         i = ex.end
         continue
       }
       text += src[i++]
     }
-    if (name || frag) throw new Error('JSX tag was not closed')
     pushText()
-    return { codes: codes, end: i }
+    return { codes: codes, end: i, pendingNls: pendingNls }
   }
 
   function tagCode(name) {
     return !name || name.indexOf('-') >= 0 || /^[a-z]/.test(name) ? JSON.stringify(name) : name
   }
+
   function propsCode(props, spreads) {
-    if (!props.length && !spreads.length) return 'null'
-    var chunks = [],
-      own = []
-    for (var i = 0; i < props.length; i++) own.push(propKey(props[i][0]) + ':' + props[i][1])
-    if (own.length) chunks.push('{' + own.join(',') + '}')
+    var chunks = [], own = [], endNl = ''
+    for (var i = 0; i < props.length; i++) {
+      var k = props[i][0]
+      if (k === '__dumbact_pre_close__') {
+        endNl += props[i][1]
+        continue
+      }
+      own.push(propKey(k) + ':' + props[i][1])
+    }
+    if (own.length || endNl) chunks.push('{' + own.join(',') + endNl + '}')
     for (var j = 0; j < spreads.length; j++) chunks.push(spreads[j])
-    return chunks.length === 1 ? chunks[0] : 'Object.assign({},' + chunks.join(',') + ')'
+    if (chunks.length === 0) return 'null'
+    if (chunks.length === 1) return chunks[0]
+    return 'Object.assign({},' + chunks.join(',') + ')'
   }
+
   function propKey(k) {
-    return /^[A-Za-z_$][\w$]*$/.test(k) ? k : JSON.stringify(k)
+    var match = k.match(/^\n*/)
+    var pre = match ? match[0] : ''
+    var key = k.slice(pre.length)
+    return pre + (/^[A-Za-z_$][\w$]*$/.test(key) ? key : JSON.stringify(key))
   }
+
   function readJSXExpr(src, i) {
     var end = findMatching(src, i, '{', '}')
     if (end < 0) throw new Error('JSX expression missing }')
-    return { code: transformJSX(src.slice(i + 1, end).trim()), end: end + 1 }
+    return { code: transformJSX(src.slice(i + 1, end)), end: end + 1 }
   }
+
   function normalizeText(t) {
     if (!t) return ''
     var lines = t.replace(/\t/g, ' ').split(/\r?\n/)
