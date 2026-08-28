@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <title>Module graph without bundlers</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: Canvas;
+        --panel: Canvas;
+        --panel2: Canvas;
+        --text: CanvasText;
+        --muted: GrayText;
+        --line: color-mix(in srgb, CanvasText 20%, transparent);
+        --accent: CanvasText;
+        --ink: Canvas;
+        --shadow: none;
+        --r: 0;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: Canvas;
+          --panel: Canvas;
+          --panel2: Canvas;
+          --text: CanvasText;
+          --muted: GrayText;
+          --line: color-mix(in srgb, CanvasText 20%, transparent);
+          --accent: CanvasText;
+          --ink: Canvas;
+          --shadow: none;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font:
+          16px/1.5 system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          sans-serif;
+        -webkit-text-size-adjust: 100%;
+      }
+      main {
+        width: min(920px, 100%);
+        margin: auto;
+        padding: clamp(16px, 4vw, 44px);
+      }
+      h1 {
+        margin: 0;
+        font-size: clamp(2rem, 7vw, 4.1rem);
+        line-height: 0.94;
+        letter-spacing: -0.055em;
+      }
+      p {
+        color: var(--muted);
+        margin: 0;
+        max-width: 72ch;
+      }
+      .hero {
+        display: grid;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+      }
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: var(--r);
+        box-shadow: var(--shadow);
+        padding: clamp(16px, 3vw, 26px);
+      }
+      .stack {
+        display: grid;
+        gap: 0.8rem;
+      }
+      .row {
+        display: flex;
+        gap: 0.65rem;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .pill {
+        display: inline-flex;
+        padding: 0.35rem 0.6rem;
+        border-radius: 0;
+        background: var(--panel2);
+        color: var(--muted);
+        font-size: 0.86rem;
+        white-space: nowrap;
+      }
+      button {
+        font: inherit;
+        cursor: pointer;
+        padding: 0.72rem 1rem;
+        border-radius: 0;
+        border: 1px solid transparent;
+        background: var(--accent);
+        color: var(--ink);
+        font-weight: 760;
+        touch-action: manipulation;
+      }
+      .metric {
+        font-size: clamp(2.4rem, 11vw, 6rem);
+        font-weight: 880;
+        letter-spacing: -0.06em;
+        line-height: 0.9;
+      }
+      code {
+        padding: 0.12rem 0.35rem;
+        border-radius: 0;
+        background: var(--panel2);
+      }
+      @media (max-width: 760px) {
+        main {
+          padding: 16px;
+        }
+        .row > button {
+          flex: 1 1 9rem;
+        }
+        .metric {
+          font-size: clamp(3rem, 24vw, 6rem);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *:before,
+        *:after {
+          animation-duration: 0.001ms !important;
+          transition-duration: 0.001ms !important;
+          scroll-behavior: auto !important;
+        }
+      }
+    </style>
+    <style data-flat-css>
+      :root {
+        --r: 0;
+        --shadow: none;
+        --sd: none;
+        --bg: Canvas;
+        --panel: Canvas;
+        --panel2: Canvas;
+        --pn: Canvas;
+        --pn2: Canvas;
+        --text: CanvasText;
+        --fg: CanvasText;
+        --muted: GrayText;
+        --mut: GrayText;
+        --line: color-mix(in srgb, CanvasText 20%, transparent);
+        --ln: color-mix(in srgb, CanvasText 20%, transparent);
+        --accent: CanvasText;
+        --ac: CanvasText;
+        --ink: Canvas;
+        --good: CanvasText;
+        --danger: CanvasText;
+        --ok: CanvasText;
+      }
+      * {
+        border-radius: 0;
+        box-shadow: none;
+      }
+      body:before {
+        background: none;
+        content: none;
+      }
+      svg rect {
+        rx: 0;
+        ry: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <span class="pill">text/dumbact-tsx-module</span>
+        <h1>Module graph without bundlers</h1>
+        <p>
+          Native module syntax. Relative TS/JSX files are fetched, stripped, lowered and served to the browser as real
+          ES modules.
+        </p>
+      </header>
+      <div id="app"></div>
+    </main>
+    <script src="../dumbact.js"></script>
+    <script type="text/dumbact-tsx-module" src="./main.tsx"></script>
+  </body>
+</html>

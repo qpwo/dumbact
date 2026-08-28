@@ -12,5 +12,5 @@ app.use(express.static(__dirname, { extensions: ['html'] }))
 const port = Number(process.env.PORT || 3000)
 app.listen(port, () => {
   console.log(`Dumbact static demo server: http://127.0.0.1:${port}/`)
-  console.log(`Module graph demo: http://127.0.0.1:${port}/demo-module/`)
+  console.log(`Module graph demo: http://127.0.0.1:${port}/demos/11-module-graph-tsx.html`)
 })
