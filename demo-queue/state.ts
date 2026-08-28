@@ -1,4 +1,3 @@
-/** Typed state and server synchronization for the multi-file TSX service queue demo. */
 import { scope } from 'dumbact'
 import { advanceRemoteJob, createJob, listJobs } from './api.ts'
 import type { Job } from './api.ts'

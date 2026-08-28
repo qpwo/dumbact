@@ -7,31 +7,25 @@
   var SVG_NS = 'http://www.w3.org/2000/svg'
   var XLINK_NS = 'http://www.w3.org/1999/xlink'
 
-  /** @typedef {() => void} Unsub */
-  /** @typedef {(value:any, previous:any, id:string) => void} Listener */
-  /** @typedef {any | ((previous:any, id:string) => any)} Patch */
-  /** @typedef {string | number | boolean | null | undefined | VNode | VNode[]} Child */
-  /** @typedef {{type:any, props:Object, children:any[], key:string|null, ref:any, _dom?:Node|null, _end?:Node|null, _child?:VNode|null, _refClean?:Function|null, _refValue?:any}} VNode */
-  /** @typedef {{id:string, has:boolean, value:any, views:Set<View>, subs:Set<Listener>, version:number}} Cell */
-  /** @typedef {{host:Element|DocumentFragment, view:any, vnode:VNode|null, deps:Set<Cell>, next:Set<Cell>, queued:boolean, dead:boolean}} View */
+  
+  
+  
+  
+  
+  
+  
 
-  /** @type {Map<string, Cell>} */
+  
   var cells = new Map()
-  /** @type {WeakMap<Element|DocumentFragment, View>|Map<any, View>} */
+  
   var roots = typeof WeakMap === 'function' ? new WeakMap() : new Map()
-  /** @type {View|null} */
+  
   var currentView = null
-  /** @type {Set<View>} */
+  
   var queue = new Set()
   var queueArmed = false
 
-  /**
-   * Create a virtual node. Compatible with classic JSX transforms.
-   * @param {string|Function|symbol} type
-   * @param {Object|null=} props
-   * @param {...Child} children
-   * @returns {VNode}
-   */
+  
   function h(type, props) {
     var p = {}
     var c = []
@@ -57,13 +51,7 @@
     return vnode(type == null ? Fragment : type, p, c, key, ref)
   }
 
-  /**
-   * JSX automatic-runtime entry point.
-   * @param {string|Function|symbol} type
-   * @param {Object|null=} props
-   * @param {string|number|null=} key
-   * @returns {VNode}
-   */
+  
   function jsx(type, props, key) {
     if (key !== undefined && key !== null) {
       props = copy(props || {})
@@ -72,48 +60,30 @@
     return h(type, props || null)
   }
 
-  /** @type {typeof jsx} */
+  
   var jsxs = jsx
-  /** @type {typeof jsx} */
+  
   var jsxDEV = jsx
 
-  /**
-   * Return true for Dumbact virtual nodes.
-   * @param {any} x
-   * @returns {boolean}
-   */
+  
   function isVNode(x) {
     return !!x && typeof x === 'object' && hasOwn(x, 'type') && hasOwn(x, 'props') && hasOwn(x, 'children')
   }
 
-  /**
-   * Read state by id. Reads are tracked during render; that is the no-hooks, no-context contract.
-   * @param {string} id
-   * @param {any=} fallback
-   * @returns {any}
-   */
+  
   function get(id, fallback) {
     var c = cell(id)
     track(c)
     return c.has ? c.value : fallback
   }
 
-  /**
-   * Read state without subscribing the current render.
-   * @param {string} id
-   * @param {any=} fallback
-   * @returns {any}
-   */
+  
   function peek(id, fallback) {
     var c = cells.get(String(id))
     return c && c.has ? c.value : fallback
   }
 
-  /**
-   * Read state by id or throw.
-   * @param {string} id
-   * @returns {any}
-   */
+  
   function need(id) {
     var c = cell(id)
     track(c)
@@ -121,22 +91,13 @@
     return c.value
   }
 
-  /**
-   * Check if an id exists.
-   * @param {string} id
-   * @returns {boolean}
-   */
+  
   function has(id) {
     var c = cells.get(String(id))
     return !!(c && c.has)
   }
 
-  /**
-   * Set state by id. The patch may be a value or a function of the previous value.
-   * @param {string} id
-   * @param {Patch} patch
-   * @returns {any}
-   */
+  
   function set(id, patch) {
     var c = cell(id)
     var existed = c.has
@@ -151,11 +112,7 @@
     return value
   }
 
-  /**
-   * Delete an id.
-   * @param {string} id
-   * @returns {boolean}
-   */
+  
   function del(id) {
     var c = cells.get(String(id))
     if (!c || !c.has) return false
@@ -168,11 +125,7 @@
     return true
   }
 
-  /**
-   * Clear every id or every id with a prefix.
-   * @param {string=} prefix
-   * @returns {void}
-   */
+  
   function clear(prefix) {
     var list = Array.from(cells.keys())
     if (prefix === undefined) {
@@ -185,13 +138,7 @@
     }
   }
 
-  /**
-   * Subscribe to an id. This is the only non-render notification primitive.
-   * @param {string} id
-   * @param {Listener} listener
-   * @param {boolean=} immediate
-   * @returns {Unsub}
-   */
+  
   function sub(id, listener, immediate) {
     var c = cell(id)
     c.subs.add(listener)
@@ -202,11 +149,7 @@
     }
   }
 
-  /**
-   * List ids, optionally by prefix.
-   * @param {string=} prefix
-   * @returns {string[]}
-   */
+  
   function ids(prefix) {
     prefix = prefix === undefined ? '' : String(prefix)
     var out = []
@@ -216,10 +159,7 @@
     return out
   }
 
-  /**
-   * Snapshot existing state into a plain object.
-   * @returns {Record<string, any>}
-   */
+  
   function snapshot() {
     var out = {}
     cells.forEach(function each(c, id) {
@@ -228,11 +168,7 @@
     return out
   }
 
-  /**
-   * Build namespaced state helpers.
-   * @param {string} prefix
-   * @returns {{id:(key:string)=>string,get:(key:string,fallback?:any)=>any,peek:(key:string,fallback?:any)=>any,set:(key:string,patch:Patch)=>any,del:(key:string)=>boolean,sub:(key:string,listener:Listener,immediate?:boolean)=>Unsub,clear:()=>void}}
-   */
+  
   function scope(prefix) {
     prefix = String(prefix || '')
     var sep = prefix && !/[.:/#-]$/.test(prefix) ? ':' : ''
@@ -262,12 +198,7 @@
     }
   }
 
-  /**
-   * Render a view into a host. A function view is re-run when any id it reads changes.
-   * @param {VNode|VNode[]|Function|null} view
-   * @param {Element|DocumentFragment|string} host
-   * @returns {Unsub}
-   */
+  
   function render(view, host) {
     host = resolveHost(host)
     var root = roots.get(host)
@@ -292,14 +223,10 @@
     }
   }
 
-  /** @type {typeof render} */
+  
   var mount = render
 
-  /**
-   * Unmount a host rendered by Dumbact.
-   * @param {Element|DocumentFragment|string} host
-   * @returns {void}
-   */
+  
   function unmount(host) {
     host = resolveHost(host)
     var root = roots.get(host)
@@ -322,10 +249,7 @@
     roots.delete(host)
   }
 
-  /**
-   * Flush scheduled render work synchronously.
-   * @returns {void}
-   */
+  
   function flush() {
     queueArmed = false
     var list = Array.from(queue)
@@ -953,7 +877,7 @@
     'text/notbabel': 'tsx'
   }
 
-  /** @type {Map<string, Promise<string>>} */
+  
   var moduleCache = new Map()
   var dumbactModuleUrl = ''
 
@@ -1562,9 +1486,6 @@
       var explicitURL = /^[a-z][a-z0-9+.-]*:/i.test(spec)
       var url = new URL(spec, base || (global.location && global.location.href) || 'http://dumbact.local/').href
 
-      // Full browser-safe CDN URLs are a user decision. Leave normal JS modules alone
-      // so providers such as jsDelivr, unpkg, esm.sh, and Skypack keep native browser
-      // module semantics, caching, CORS behavior, and their own internal dependency graph.
       if (explicitURL && /^https?:/i.test(url) && !/\.(tsx|jsx|ts)(?:[?#]|$)/i.test(url)) return Promise.resolve(url)
 
       if (/^https?:|^file:|^blob:|^data:/.test(url) && /\.(tsx|jsx|ts|mjs|js)(?:[?#]|$)/i.test(url))

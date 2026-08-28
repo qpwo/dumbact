@@ -1,4 +1,3 @@
-/** TSX views for the multi-file bike shop service queue server/client demo. */
 import { statusText } from './data.ts'
 import { addJob, advance, draft, jobs, setDraft, status, summary } from './state.ts'
 import type { Job } from './api.ts'

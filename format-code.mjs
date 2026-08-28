@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** Format every project source file with prettier-no-jsx-parens without shell glob footguns. */
+
 import { spawnSync } from 'node:child_process'
 import { existsSync, readdirSync, statSync } from 'node:fs'
 import { extname, join, relative } from 'node:path'

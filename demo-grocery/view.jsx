@@ -1,4 +1,3 @@
-/** JSX views for the multi-file grocery basket server/client demo. */
 import {
   addItem,
   boughtCount,

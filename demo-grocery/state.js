@@ -1,4 +1,3 @@
-/** State and server synchronization for the multi-file JSX grocery basket demo. */
 import { scope } from 'dumbact'
 import { createItem, listItems, toggleRemoteItem } from './api.js'
 import { seedItems } from './items.js'

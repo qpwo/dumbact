@@ -1,4 +1,3 @@
-/** HTTP client helpers for the multi-file JSX grocery basket demo. */
 export function listItems() {
   return json('/api/items')
 }

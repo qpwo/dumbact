@@ -1,4 +1,3 @@
-/** Ambient editor types for Dumbact TS/TSX demos; no runtime output or build step. */
 type DumbactStyleValue = string | number | null | undefined
 type DumbactStyle = string | Partial<CSSStyleDeclaration> | Record<string, DumbactStyleValue>
 type DumbactIntrinsicProps = {

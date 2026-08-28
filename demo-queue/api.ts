@@ -1,4 +1,3 @@
-/** HTTP client helpers for the multi-file TSX service queue demo. */
 export type Job = {
   id: string
   title: string
